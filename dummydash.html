@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card {
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .card a {
+            text-decoration: none;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-4">
+        <!-- Search Bar -->
+        <div class="mb-4">
+            <input type="text" id="search-input" class="form-control" placeholder="Search links...">
+        </div>
+        <!-- Dashboard -->
+        <div class="row" id="dashboard">
+            <!-- Cards will be appended here dynamically -->
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"></script>
+    <script>
+// Fetch data from the local server's endpoint
+fetch('http://localhost:3000/getExcelData')
+    .then(response => response.json())
+    .then(data => displayLinks(data))
+    .catch(error => console.error('Error fetching data:', error));
+
+        function displayLinks(data) {
+            const dashboard = document.getElementById('dashboard');
+            data.forEach(row => {
+                const link = Object.values(row)[0];  // Assuming the link is the first value of each row
+                if (link) {
+                    const card = document.createElement('div');
+                    card.classList.add('col-md-4', 'mb-4');
+                    card.innerHTML = `
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <a href="${link}" target="_blank">${link}</a>
+                        </div>
+                    </div>`;
+                    dashboard.appendChild(card);
+                }
+            });
+
+            // Implement search functionality after displaying all links
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('keyup', function () {
+                const searchTerm = searchInput.value.toLowerCase();
+                const cards = dashboard.getElementsByClassName('col-md-4');
+                Array.from(cards).forEach(card => {
+                    const linkText = card.querySelector('a').textContent.toLowerCase();
+                    if (linkText.includes(searchTerm)) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>
